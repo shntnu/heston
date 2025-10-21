@@ -16,6 +16,7 @@ This is a quantitative finance project focused on **stochastic volatility modeli
 ## Project Structure
 
 - `bs.py`: Marimo notebook implementing Black-Scholes GBM simulation with interactive sliders for parameters (S0, r, q, σ, T, K). Includes Monte Carlo path generation and analytic pricing comparison.
+- `heston.py`: Marimo notebook implementing Heston stochastic volatility model using Euler Full Truncation scheme. Interactive sliders for 10 parameters (S0, K, r, q, T, v0, κ, θ, σ, ρ). Includes correlated price/variance simulation and validation checks.
 - `main.py`: Simple entry point (placeholder)
 - `heston.md`: Comprehensive theoretical documentation covering:
   - Heston model fundamentals and intuition
@@ -23,22 +24,40 @@ This is a quantitative finance project focused on **stochastic volatility modeli
   - Discretization schemes (Euler-FT, QE, exact CIR)
   - Implementation recipes and code examples
   - Black-Scholes vs Heston comparison
+- `PROGRESS.md`: Compact implementation tracker showing completed work and optional enhancement roadmap
 
 ## Running the Project
 
-### Run the Black-Scholes Marimo notebook:
+### Run the Black-Scholes Marimo notebook
+
 ```bash
 marimo edit bs.py
 ```
 
 This launches an interactive environment with sliders to explore how parameters affect:
+
 - Monte Carlo price paths
 - Risk-neutral forward mean (E[S_T])
 - European call option pricing vs analytic Black-Scholes formula
 
-### Run as standalone Python:
+### Run the Heston Marimo notebook
+
+```bash
+marimo edit heston.py
+```
+
+This launches an interactive environment with sliders for 10 Heston parameters to explore:
+
+- Stochastic variance paths (mean reversion, vol-of-vol)
+- Correlated price paths with time-varying volatility
+- Variance positivity validation (Euler Full Truncation)
+- European call option pricing with Monte Carlo standard errors
+
+### Run as standalone Python
+
 ```bash
 python bs.py
+python heston.py
 ```
 
 ## Architecture & Design
@@ -74,41 +93,53 @@ All simulations follow this structure:
 
 ## Development Workflow
 
-### Adding new models:
+### Adding new models
 
-When implementing Heston or other stochastic volatility models, follow these patterns from `bs.py`:
+When implementing additional stochastic volatility models, follow the established patterns from `bs.py` and `heston.py`:
 
 1. Create a `simulate_*_paths()` function returning (n_paths, n_steps+1) arrays
-2. Implement analytical pricing function for validation
+2. Implement analytical pricing function for validation (if available)
 3. Use Marimo sliders for interactive parameter exploration
 4. Include both forward mean check and option pricing comparison
 5. Report Monte Carlo standard errors for statistical rigor
+6. For stochastic volatility: ensure variance/volatility stays non-negative via truncation or exact schemes
 
-### Key implementation details:
+### Key implementation details
 
 - **Reproducibility**: Always use seeded RNG (`np.random.default_rng(seed)`)
 - **Vectorization**: Simulate all paths simultaneously using NumPy broadcasting
 - **Log-space simulation**: For price processes, work in log-space to avoid negative prices
 - **Risk-neutral measure**: Use (r - q) drift for pricing, not historical drift
 
-## Heston Model (Future Implementation)
+## Heston Model Implementation
 
-Per `heston.md`, when implementing Heston:
+The `heston.py` implementation follows the theoretical foundation in `heston.md`:
 
 1. **Variance process** (CIR dynamics): `dv_t = κ(θ - v_t)dt + σ√v_t dW_v`
 2. **Price process**: `dS_t = (r - q)S_t dt + √v_t S_t dW_S`
 3. **Correlation**: `corr(dW_S, dW_v) = ρ`
 
-**Recommended scheme**: Euler with Full Truncation (FT)
-- Clamp variance to non-negative: `v_bar = max(v, 0)` inside sqrt
-- Use correlated normals: `Z_S = ρ*Z_v + √(1-ρ²)*Z_perp`
-- Optional: midpoint variance approximation for lower bias
+**Current scheme**: Euler with Full Truncation (FT)
 
-**Parameters to validate**:
-- Feller condition: `2κθ ≥ σ²` (ensures variance stays positive)
-- `κ > 0` (mean reversion speed)
-- `θ > 0` (long-run variance)
-- `ρ ∈ [-1, 1]` (correlation)
+- Clamps variance to non-negative: `v_plus = max(v, 0)` before sqrt
+- Clamps after step: `v_next = max(v_next, 0)` to ensure positivity
+- Uses correlated normals: `Z_S = ρ*Z_v + √(1-ρ²)*Z_perp`
+- Log-space price evolution for guaranteed positivity
+
+**Parameters** (with default values from `heston.md`):
+
+- `v0 = 0.04` (initial variance, i.e., σ₀ ≈ 20%)
+- `κ = 1.5` (mean reversion speed, κ > 0)
+- `θ = 0.04` (long-run variance, θ > 0)
+- `σ = 0.5` (vol-of-vol)
+- `ρ = -0.7` (correlation, ρ ∈ [-1, 1])
+- Feller condition check: `2κθ ≥ σ²` (ensures variance stays positive)
+
+**Future enhancements** (see `PROGRESS.md`):
+
+- QE (Quadratic-Exponential) scheme for lower bias
+- Exact CIR variance via noncentral χ² transition
+- Heston semi-analytic pricing via characteristic function
 
 ## Testing & Validation
 
