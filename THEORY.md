@@ -209,14 +209,13 @@ By walking through a Heston simulation, you'll learn:
 
 ---
 
-### 🎯 Next Step (if this framing resonates):
+### 🎯 Next Step (if this framing resonates)
 
 I’ll show you a **visual mental model of the variance process alone**, before we even touch prices — so you see how vol *breathes*. Then we introduce price evolution on top.
 
 👉 **Does that sound like a good progression?** (Orientation → variance intuition → then price coupling → then simulation)
 
 Just say **"yes"** or **"go ahead"**, and I'll proceed in that intuitive layer-by-layer style.
-
 
 Great question — and it depends on what you want to learn from this process. Here’s a quick decision map to help you choose:
 
@@ -272,7 +271,7 @@ If you also want clean coding foundations:
 
 ---
 
-### 🎬 Here's what I can do next based on your preference:
+### 🎬 Here's what I can do next based on your preference
 
 1. **Micro Black–Scholes simulation walkthrough**
 2. **Or jump straight to simulating the *volatility-only* process (CIR / Heston variance)**
@@ -344,7 +343,7 @@ S_{t+\Delta t} = S_t \cdot \exp\left[\big((r - q) - \tfrac{1}{2}\sigma^2\big)\De
 
 ---
 
-## 🚀 Next: I'll give you a **minimal code skeleton (clean, readable NumPy)** with commentary explaining *why* each line exists — not just what it does.
+## 🚀 Next: I'll give you a **minimal code skeleton (clean, readable NumPy)** with commentary explaining *why* each line exists — not just what it does
 
 Would you like that next?
 
